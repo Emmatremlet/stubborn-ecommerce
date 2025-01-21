@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produit :
+	{{ product.name }}
+{% endblock %}
+
+{% block body %}
+	<h1>{{ product.name }}</h1>
+	<p>Prix :
+		{{ product.price }}
+		€</p>
+
+	<form method="post" action="{{ path('cart_add', {id: product.id}) }}">
+		<label for="size">Taille :</label>
+		<select name="size" id="size">
+			{% for size in product.sizes %}
+				<option value="{{ size }}">{{ size }}</option>
+			{% endfor %}
+		</select>
+		<button type="submit">Ajouter au panier</button>
+	</form>
+{% endblock %}

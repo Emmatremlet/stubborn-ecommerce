@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produits
+{% endblock %}
+
+{% block body %}
+	<h1>Liste des produits</h1>
+
+	<div>
+		<form method="get" action="{{ path('products') }}">
+			<label>Filtrer par prix :</label>
+			<select name="price_range">
+				<option value="10-29">10 à 29 €</option>
+				<option value="29-35">29 à 35 €</option>
+				<option value="35-50">35 à 50 €</option>
+			</select>
+			<button type="submit">Filtrer</button>
+		</form>
+
+		<ul>
+			{% for product in products %}
+				<li>
+					<h3>{{ product.name }}</h3>
+					<p>{{ product.price }}
+						€</p>
+					<a href="{{ path('product', {id: product.id}) }}">Voir</a>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
