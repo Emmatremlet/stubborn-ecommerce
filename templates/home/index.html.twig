@@ -4,21 +4,29 @@
 {% endblock %}
 
 {% block body %}
-	<h1>Bienvenue sur Stubborn</h1>
-
 	<div>
-		<h2>Produits en avant</h2>
-		<ul>
-			{% for product in products %}
-				<li>
-					<h3>{{ product.name }}</h3>
-					<p>{{ product.price }}
+		<h2>
+			Nos produits phares !
+		</h2>
+		{% for product in products %}
+			<div class="card" style="width: 18rem;">
+<img src="{{ asset('images/' ~ product.image) }}" class="card-img-top w-75 d-flex justify-content-center align-items-center mx-auto" alt="sweat noir à capuche">
+
+				<div class="card-body">
+					<h5 class="card-title">{{ product.name }}</h5>
+					<p class="card-text">
+						{{ product.price }}
 						€</p>
-					{% if app.user %}
-						<a href="{{ path('product', {id: product.id}) }}">Voir</a>
-					{% endif %}
-				</li>
-			{% endfor %}
-		</ul>
+					<p>Tailles disponibles :
+						{% for size in product.sizes %}
+							{{ size.name }}
+							{% if not loop.last %},
+							{% endif %}
+						{% endfor %}
+					</p>
+					<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
+				</div>
+			</div>
+		{% endfor %}
 	</div>
-{% endblock %}
+</div>{% endblock %}

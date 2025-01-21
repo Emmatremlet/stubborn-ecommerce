@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un produit
+{% endblock %}
+
+{% block body %}
+	<div class="container mt-5">
+		<h1 class="mb-4 text-center">Ajouter un produit</h1>
+
+		<div class="card shadow p-4">
+			{{ form_start(form, { attr: { class: 'row g-3' } }) }}
+
+			<div class="col-md-6">
+				{{ form_row(form.name, { 
+                label_attr: { class: 'form-label' }, 
+                attr: { class: 'form-control' } 
+            }) }}
+			</div>
+
+			<div class="col-md-6">
+				{{ form_row(form.image, { 
+                label_attr: { class: 'form-label' }, 
+                attr: { class: 'form-control' } 
+            }) }}
+			</div>
+
+			<!-- Prix -->
+			<div class="col-md-4">
+				{{ form_row(form.price, { 
+                label_attr: { class: 'form-label' }, 
+                attr: { class: 'form-control' } 
+            }) }}
+			</div>
+
+			<div class="col-md-4">
+				<label class="form-label">Tailles disponibles</label>
+				{{ form_widget(form.sizes, {
+                    attr: { class: 'form-checkbox' }
+                }) }}
+
+			</div>
+
+			<div class="col-md-4">
+				{{ form_row(form.stock, { 
+                label_attr: { class: 'form-label' }, 
+                attr: { class: 'form-control' } 
+            }) }}
+			</div>
+
+			<div class="col-md-12 d-flex align-items-center">
+				{{ form_row(form.highlighted, { 
+                label_attr: { class: 'form-check-label ms-2' }, 
+                attr: { class: 'form-check-input' } 
+            }) }}
+			</div>
+
+			<div class="col-12 text-center">
+				<button type="submit" class="btn btn-primary w-50">Enregistrer le produit</button>
+			</div>
+
+			{{ form_end(form) }}
+		</div>
+	</div>
+{% endblock %}

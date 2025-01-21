@@ -19,14 +19,17 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image = null;
+
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $sizes = [];
+    #[ORM\ManyToMany(targetEntity: Size::class)]
+    private $sizes;
 
     #[ORM\Column]
-    private array $stock = [];
+    private ?int $stock = null;
 
     #[ORM\Column]
     private ?bool $highlighted = null;
@@ -40,6 +43,7 @@ class Product
     public function __construct()
     {
         $this->carts = new ArrayCollection();
+        $this->sizes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,24 +75,34 @@ class Product
         return $this;
     }
 
-    public function getSizes(): array
+    public function getSizes(): Collection
     {
         return $this->sizes;
     }
 
-    public function setSizes(array $sizes): static
+    public function addSize(Size $size): self
     {
-        $this->sizes = $sizes;
+        if (!$this->sizes->contains($size)) {
+            $this->sizes[] = $size;
+        }
 
         return $this;
     }
 
-    public function getStock(): array
+    public function removeSize(Size $size): self
+    {
+        $this->sizes->removeElement($size);
+
+        return $this;
+    }
+
+
+    public function getStock(): ?int
     {
         return $this->stock;
     }
 
-    public function setStock(array $stock): static
+    public function setStock(int $stock): static
     {
         $this->stock = $stock;
 
@@ -133,4 +147,15 @@ class Product
 
         return $this;
     }
+
+    public function getImage(): ?string 
+    { 
+        return $this->image; 
+    }
+    
+    public function setImage(?string $image): static 
+    {
+        $this->image = $image; return $this; 
+    }
+
 }
