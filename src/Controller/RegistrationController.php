@@ -105,7 +105,7 @@ class RegistrationController extends AbstractController
                 $this->addFlash('info', 'L\'utilisateur a déjà le rôle ADMIN.');
             }
         } else {
-            $this->addFlash('error', 'Utilisateur non trouvé.');
+            $this->addFlash('danger', 'Utilisateur non trouvé.');
         }
 
         return $this->redirectToRoute('home');

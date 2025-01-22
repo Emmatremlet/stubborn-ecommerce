@@ -19,7 +19,7 @@ class CartController extends AbstractController
         $cart = $this->getUser()->getCarts()->first();
 
         if (!$cart) {
-            $this->addFlash('error', 'Vous n\'avez pas encore de panier.');
+            $this->addFlash('danger', 'Vous n\'avez pas encore de panier.');
             return $this->redirectToRoute('products');
         }
 
@@ -29,7 +29,6 @@ class CartController extends AbstractController
         foreach ($products as $product) {
             $selectedSize = $product->getSelectedSize();
 
-            // Si aucune taille n'est sélectionnée, définir une valeur par défaut
             $selectedSizeIds[$product->getId()] = $selectedSize ? $selectedSize->getId() : null;
 
             // Vérifier et mettre à jour la taille sélectionnée
@@ -49,6 +48,7 @@ class CartController extends AbstractController
             'cart' => $cart,
             'products' => $products,
             'selected_size_id' => $selectedSizeIds,
+            'stripe_public_key' => $_ENV['STRIPE_PUBLIC_KEY'] ?? null,
         ]);
     }
 
@@ -56,20 +56,20 @@ class CartController extends AbstractController
     public function addToCart(int $productId, Request $request, EntityManagerInterface $entityManager): RedirectResponse
     {
         if (!$this->getUser()) {
-            $this->addFlash('error', 'Vous devez être connecté pour ajouter des produits au panier.');
+            $this->addFlash('danger', 'Vous devez être connecté pour ajouter des produits au panier.');
             return $this->redirectToRoute('login');
         }
 
         $product = $entityManager->getRepository(Product::class)->find($productId);
 
         if (!$product) {
-            $this->addFlash('error', 'Produit non trouvé.');
+            $this->addFlash('danger', 'Produit non trouvé.');
             return $this->redirectToRoute('products');
         }
 
         $sizeId = $request->request->get('size');
         if (!$sizeId || !is_numeric($sizeId)) {
-            $this->addFlash('error', 'Veuillez sélectionner une taille valide.');
+            $this->addFlash('danger', 'Veuillez sélectionner une taille valide.');
             return $this->redirectToRoute('product', ['id' => $productId]);
         }
 
@@ -111,7 +111,7 @@ class CartController extends AbstractController
         $cart = $this->getUser()->getCarts()->first();
 
         if (!$cart) {
-            $this->addFlash('error', 'Votre panier est vide.');
+            $this->addFlash('danger', 'Votre panier est vide.');
             return $this->redirectToRoute('cart_index');
         }
 
@@ -138,7 +138,7 @@ class CartController extends AbstractController
                 $productSize = $entityManager->getRepository(ProductSize::class)->find($sizeId);
 
                 if (!$productSize) {
-                    $this->addFlash('error', 'La taille sélectionnée est invalide pour le produit ' . $product->getName() . '.');
+                    $this->addFlash('danger', 'La taille sélectionnée est invalide pour le produit ' . $product->getName() . '.');
                     continue;
                 }
 
@@ -158,14 +158,14 @@ class CartController extends AbstractController
         $cart = $this->getUser()->getCarts()->first();
 
         if (!$cart) {
-            $this->addFlash('error', 'Votre panier est vide.');
+            $this->addFlash('danger', 'Votre panier est vide.');
             return $this->redirectToRoute('cart_index');
         }
 
         $product = $entityManager->getRepository(Product::class)->find($productId);
 
         if (!$product) {
-            $this->addFlash('error', 'Produit non trouvé.');
+            $this->addFlash('danger', 'Produit non trouvé.');
             return $this->redirectToRoute('cart_index');
         }
 
@@ -183,7 +183,7 @@ class CartController extends AbstractController
 
             $this->addFlash('success', 'Produit supprimé du panier !');
         } else {
-            $this->addFlash('error', 'Produit non trouvé dans le panier.');
+            $this->addFlash('danger', 'Produit non trouvé dans le panier.');
         }
 
         return $this->redirectToRoute('cart_index');

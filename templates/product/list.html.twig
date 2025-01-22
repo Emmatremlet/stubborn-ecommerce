@@ -29,14 +29,7 @@
 								{{ product.price }}
 								€
 							</p>
-							{% if 'ROLE_ADMIN' in app.user.roles %}
-								<div class="d-flex justify-content-center align-items-center gap-5">
-									<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
-									<a class="btn btn-success text-nowrap" href="#">Modifier</a>
-								</div>
-							{% else %}
-								<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
-							{% endif %}
+							<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
 						</div>
 					</div>
 				{% endfor %}

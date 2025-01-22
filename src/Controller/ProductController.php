@@ -53,9 +53,10 @@ class ProductController extends AbstractController
         ]);
     }
 
-    #[Route('/dashboard', name: 'product_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/dashboard', name: 'admin')]
+    public function new(ProductRepository $productRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $products = $productRepository->findAll();
         $product = new Product();
         $form = $this->createForm(ProductFormType::class, $product);
         $form->handleRequest($request);
@@ -72,23 +73,38 @@ class ProductController extends AbstractController
 
         return $this->render('administrator/dashboard.html.twig', [
             'form' => $form->createView(),
+            'products' => $products
         ]);
     }
-    
+        
+    #[Route('/product/edit/{id}', name: 'product_edit')]
+    public function edit(Product $product, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(ProductFormType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Produit modifié avec succès !');
+
+            return $this->redirectToRoute('admin');
+        }
+
+        return $this->render('administrator/edit.html.twig', [
+            'form' => $form->createView(),
+            'product' => $product,
+        ]);
+    }
+
     #[Route('/product/delete/{id}', name: 'product_delete')]
     public function delete(Product $product, EntityManagerInterface $entityManager): RedirectResponse
     {
-
-        foreach ($product->getProductSizes() as $productSize) {
-            $entityManager->remove($productSize);
-        }
-
         $entityManager->remove($product);
         $entityManager->flush();
 
         $this->addFlash('success', 'Produit supprimé avec succès !');
-
-        return $this->redirectToRoute('products'); 
+        return $this->redirectToRoute('products');
     }
 }
 

@@ -4,7 +4,30 @@
 {% endblock %}
 
 {% block body %}
+	<a class="btn btn-primary" href="#add-product">Ajouter un produit</a>
 	<div class="container mt-5">
+		<div class="row gap-3 d-flex justify-content-center align-items-center">
+			{% for product in products %}
+				<div class="card" style="width: 18rem;">
+					<img src="{{ asset('images/' ~ product.image) }}" class="card-img-top w-75 d-flex justify-content-center align-items-center mx-auto" alt="sweat noir à capuche">
+					<div class="card-body">
+						<h5 class="card-title">{{ product.name }}</h5>
+						<p class="card-text text-end">
+							{{ product.price }}
+							€
+						</p>
+						<div class="d-flex justify-content-center align-items-center gap-2">
+							<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
+							<a class="btn btn-success text-nowrap" href="{{ path('product_edit', { id: product.id }) }}">Modifier</a>
+                            <a class="btn btn-danger text-nowrap" href="{{ path('product_delete', { id: product.id }) }}">Supprimer</a>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<div class="container mt-5" id="add-product">
 		<h1 class="mb-4 text-center">Ajouter un produit</h1>
 
 		<div class="card shadow p-4">
@@ -34,7 +57,7 @@
 
 			<div class="col-md-4">
 				{{ form_row(form.productSizes) }}
-            <button type="button" class="btn btn-secondary" id="add_size">Ajouter une taille</button>
+				<button type="button" class="btn btn-secondary" id="add_size">Ajouter une taille</button>
 			</div>
 
 			<div class="col-md-4 d-flex align-items-center">
@@ -51,32 +74,32 @@
 			{{ form_end(form) }}
 		</div>
 	</div>
-{% block javascripts %}
-	<script>
-		const addButton = document.getElementById('add_size');
-        const productSizesContainer = document.getElementById('product_form_productSizes');
+	{% block javascripts %}
+		<script>
+			const addButton = document.getElementById('add_size');
+const productSizesContainer = document.getElementById('product_form_productSizes');
 
-        addButton.addEventListener('click', function () {
-        const prototype = productSizesContainer.getAttribute('data-prototype');
-        const newForm = prototype.replace(/__name__/g, productSizesContainer.children.length);
+addButton.addEventListener('click', function () {
+const prototype = productSizesContainer.getAttribute('data-prototype');
+const newForm = prototype.replace(/__name__/g, productSizesContainer.children.length);
 
-        const div = document.createElement('div');
-        div.innerHTML = newForm;
-        
-        const deleteButton = document.createElement('button');
-        deleteButton.type = 'button';
-        deleteButton.classList.add('btn', 'btn-danger', 'mt-2');
-        deleteButton.innerText = 'Supprimer cette taille';
+const div = document.createElement('div');
+div.innerHTML = newForm;
 
-        deleteButton.addEventListener('click', function () {
-            div.remove();
-        });
+const deleteButton = document.createElement('button');
+deleteButton.type = 'button';
+deleteButton.classList.add('btn', 'btn-danger', 'mt-2');
+deleteButton.innerText = 'Supprimer cette taille';
 
-        div.appendChild(deleteButton);
-        productSizesContainer.appendChild(div);
+deleteButton.addEventListener('click', function () {
+div.remove();
+});
 
-        });
-	</script>
-{% endblock %}
+div.appendChild(deleteButton);
+productSizesContainer.appendChild(div);
+
+});
+		</script>
+	{% endblock %}
 
 {% endblock %}

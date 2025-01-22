@@ -14,10 +14,11 @@ class ProductSize
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'productSizes')]
+    #[ORM\JoinColumn(onDelete: "CASCADE")]
     private ?Product $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'productSizes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: "CASCADE")]
     private ?Size $size = null;
 
     #[ORM\Column]
