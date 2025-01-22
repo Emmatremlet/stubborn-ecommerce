@@ -3,7 +3,7 @@
 namespace App\Form;
 
 use App\Entity\Product;
-use App\Entity\Size;
+use App\Form\ProductSizeType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ArrayType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 
@@ -31,22 +32,14 @@ class ProductFormType extends AbstractType
                 'label' => 'Prix',
                 'currency' => 'EUR',
             ])
-            ->add('sizes', EntityType::class, [
-                'class' => Size::class,
-                'choice_label' => 'name',
-                'multiple' => true,
-                'expanded' => true, 
-                'label' => 'Tailles disponibles',
-                'attr' => [
-                    'class' => 'form-check',
-                ],
-            ])
-            ->add('stock', IntegerType::class, [
-                'label' => 'Stock disponible',
-                'attr' => [
-                    'min' => 0,
-                    'class' => 'form-control',
-                ],
+            ->add('productSizes', CollectionType::class, [
+                'entry_type' => ProductSizeType::class,
+                'allow_add' => true,
+                'by_reference' => false,
+                'entry_options' => ['label' => false],
+                'prototype' => true,
+                'prototype_name' => '__name__',
+                'label' => 'Tailles et Stock',
             ])
             ->add('highlighted', CheckboxType::class, [
                 'label' => 'Produit mis en avant',

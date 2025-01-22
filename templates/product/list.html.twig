@@ -7,7 +7,7 @@
 	<h1>Liste des produits</h1>
 
 	<div>
-		<form method="get" action="{{ path('products') }}">
+		{# <form method="get" action="{{ path('products') }}">
 			<label>Filtrer par prix :</label>
 			<select name="price_range">
 				<option value="10-29">10 à 29 €</option>
@@ -15,17 +15,23 @@
 				<option value="35-50">35 à 50 €</option>
 			</select>
 			<button type="submit">Filtrer</button>
-		</form>
+		</form> #}
 
-		<ul>
-			{% for product in products %}
-				<li>
-					<h3>{{ product.name }}</h3>
-					<p>{{ product.price }}
-						€</p>
-					<a href="{{ path('product', {id: product.id}) }}">Voir</a>
-				</li>
-			{% endfor %}
-		</ul>
+        <div class="container mt-5">
+            <div class="row gap-3 d-flex justify-content-center align-items-center">
+                {% for product in products %}
+                    <div class="card" style="width: 18rem;">
+                        <img src="{{ asset('images/' ~ product.image) }}" class="card-img-top w-75 d-flex justify-content-center align-items-center mx-auto" alt="sweat noir à capuche">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-end">
+                                {{ product.price }}
+                                €</p>
+                            <a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary d-flex justify-content-center align-items-center w-25 px-5 mx-auto">Voir</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
 	</div>
 {% endblock %}

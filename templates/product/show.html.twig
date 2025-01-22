@@ -5,18 +5,32 @@
 {% endblock %}
 
 {% block body %}
-	<h1>{{ product.name }}</h1>
-	<p>Prix :
-		{{ product.price }}
-		€</p>
+    <div class="card mb-3 position-relative" style="max-width: 700px;">
+		<div class="row g-0">
+			<div class="col-md-8">
+				<img src="{{ asset('images/' ~ product.image) }}" class="img-fluid rounded-start w-100" alt="sweat à capuche vendu par stubborn">
+			</div>
+			<div class="col-md-4 ">
+				<div class="card-body">
+					<h3 class="card-title">{{product.name}}</h3>
+					<p class="card-text">{{product.price}}</p>
+					<div class="card-text">
+						<form method="post" action="{{ path('cart_add', {productId: product.id}) }}">
+							<div>
+								<label for="size">Taille :</label>
+								<select name="size" id="size">
+									{% for size in availableSizes %}
+										<option value="{{ size.id }}">{{ size.name }}</option>
+									{% endfor %}
+								</select>
+							</div>
+							<button class="btn btn-primary p-2 position-absolute bottom-50 end-0 m-3" type="submit">Ajouter au panier</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-	<form method="post" action="{{ path('cart_add', {id: product.id}) }}">
-		<label for="size">Taille :</label>
-		<select name="size" id="size">
-			{% for size in product.sizes %}
-				<option value="{{ size }}">{{ size }}</option>
-			{% endfor %}
-		</select>
-		<button type="submit">Ajouter au panier</button>
-	</form>
+
 {% endblock %}

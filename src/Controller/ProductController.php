@@ -32,8 +32,16 @@ class ProductController extends AbstractController
     #[Route('/product/{id}', name: 'product')]
     public function show(Product $product): Response
     {
+        $availableSizes = [];
+        foreach ($product->getProductSizes() as $productSize) {
+            if ($productSize->getStock() > 0) {
+                $availableSizes[] = $productSize->getSize();
+            }
+        }
+
         return $this->render('product/show.html.twig', [
             'product' => $product,
+            'availableSizes' => $availableSizes,
         ]);
     }
 
@@ -51,12 +59,28 @@ class ProductController extends AbstractController
 
             $this->addFlash('success', 'Produit ajouté avec succès !');
 
-            return $this->redirectToRoute('/dashboard');
+            return $this->redirectToRoute('product_new');
         }
 
         return $this->render('administrator/dashboard.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+    
+    #[Route('/product/delete/{id}', name: 'product_delete')]
+    public function delete(Product $product, EntityManagerInterface $entityManager): RedirectResponse
+    {
+
+        foreach ($product->getProductSizes() as $productSize) {
+            $entityManager->remove($productSize);
+        }
+
+        $entityManager->remove($product);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Produit supprimé avec succès !');
+
+        return $this->redirectToRoute('products'); 
     }
 }
 

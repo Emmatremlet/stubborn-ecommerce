@@ -8,10 +8,12 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
-class User
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -28,7 +30,7 @@ class User
     private ?string $password = null;
 
     #[ORM\Column(type: Types::ARRAY)]
-    private array $roles = [];
+    private array $roles = ['ROLE_USER'];
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $deliveryAddress = null;
@@ -76,11 +78,6 @@ class User
         return $this;
     }
 
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -88,18 +85,27 @@ class User
         return $this;
     }
 
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function getPasswordAuthenticatedUser(): string
+    {
+        return $this->password;
+    }
+
     public function getRoles(): array
     {
-        return $this->roles;
+        return array_unique(array_merge($this->roles, ['ROLE_USER']));
     }
 
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
-
         return $this;
     }
-
+    
     public function getDeliveryAddress(): ?string
     {
         return $this->deliveryAddress;
@@ -152,5 +158,15 @@ class User
         $this->isVerified = $isVerified;
 
         return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+
+    public function eraseCredentials(): void
+    {
+        // Efface les données sensibles si nécessaire (par exemple, un mot de passe temporaire).
     }
 }

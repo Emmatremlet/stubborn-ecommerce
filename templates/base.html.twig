@@ -18,14 +18,11 @@
 		class="bg-light d-flex flex-column min-vh-100">
 		<!-- Navbar -->
 		<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-			<div class="container">
-				<div class="my-1">
-					<div class="row">
-						<img src="{{ asset('images/Logo.png') }}" alt="Logo Stubborn" class="col-1"/>
-						<a class="navbar-brand fs-4 col-8" href="/">Stubborn</a>
-					</div>
+			<div class="container mx-4">
+				<a href="/" class="my-1 justify-content-center" style="text-decoration:none; color:black">
+					<img src="{{ asset('images/Logo.png') }}" alt="Logo Stubborn" class="col-2"/>
 					<p>Don't compromise on your look</p>
-				</div>
+				</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -37,25 +34,27 @@
 						<li class="nav-item">
 							<a class="nav-link" href="/products">Boutique</a>
 						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="/cart">Panier</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="/dashboard">Tableau de bord</a>
-						</li>
-						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-								Compte
-							</a>
-							<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-								<li>
-									<a class="dropdown-item" href="#">Connexion</a>
+						{% if app.user %}
+							<li class="nav-item">
+								<a class="nav-link" href="/cart">Panier</a>
+							</li>
+							{% if 'ROLE_ADMIN' in app.user.roles %}
+								<li class="nav-item">
+									<a class="nav-link text-nowrap" href="/dashboard">Tableau de bord</a>
+
 								</li>
-								<li>
-									<a class="dropdown-item" href="#">Inscription</a>
-								</li>
-							</ul>
-						</li>
+							{% endif %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
+							</li>
+						{% else %}
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('app_register') }}">Inscription</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="{{ path('app_login') }}">Connexion</a>
+							</li>
+						{% endif %}
 					</ul>
 				</div>
 			</div>
@@ -72,7 +71,7 @@
 						<h5>Nous contacter</h5>
 						<ul class="list-inline mt-2 row ">
 							<li class="list-inline-item">
-								<a href="mailto::stubborn@blabla.com" class="text-white text-decoration-none">stubborn@blabla.com</a>
+								<a href="mailto:stubborn@blabla.com" class="text-white text-decoration-none">stubborn@blabla.com</a>
 							</li>
 							<li class="list-inline-item">
 								<a href="https://www.google.com/maps/place/Piccadilly+Circus,+London,+Royaume-Uni/@51.5098597,-0.1368558,17z/data=!3m1!4b1!4m6!3m5!1s0x487604d3ff201fc1:0xf08adf0cfb3eb2fe!8m2!3d51.5098597!4d-0.1342809!16zL20vMDFoYzZx?entry=ttu&g_ep=EgoyMDI1MDExNS4wIKXMDSoASAFQAw%3D%3D" class="text-white  text-decoration-none">Piccadilly Circus, London W1J 0DA, Royaume-Uni</a>

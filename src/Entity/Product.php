@@ -25,14 +25,11 @@ class Product
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\ManyToMany(targetEntity: Size::class)]
-    private $sizes;
-
-    #[ORM\Column]
-    private ?int $stock = null;
-
     #[ORM\Column]
     private ?bool $highlighted = null;
+
+    #[ORM\Column]
+    private ?int $quantity = 0;
 
     /**
      * @var Collection<int, Cart>
@@ -40,10 +37,16 @@ class Product
     #[ORM\ManyToMany(targetEntity: Cart::class, mappedBy: 'products')]
     private Collection $carts;
 
+    /**
+     * @var Collection<int, ProductSize>
+     */
+    #[ORM\OneToMany(targetEntity: ProductSize::class, mappedBy: 'product', cascade: ['persist', 'remove'])]
+    private Collection $productSizes;
+
     public function __construct()
     {
         $this->carts = new ArrayCollection();
-        $this->sizes = new ArrayCollection();
+        $this->productSizes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,40 +74,6 @@ class Product
     public function setPrice(float $price): static
     {
         $this->price = $price;
-
-        return $this;
-    }
-
-    public function getSizes(): Collection
-    {
-        return $this->sizes;
-    }
-
-    public function addSize(Size $size): self
-    {
-        if (!$this->sizes->contains($size)) {
-            $this->sizes[] = $size;
-        }
-
-        return $this;
-    }
-
-    public function removeSize(Size $size): self
-    {
-        $this->sizes->removeElement($size);
-
-        return $this;
-    }
-
-
-    public function getStock(): ?int
-    {
-        return $this->stock;
-    }
-
-    public function setStock(int $stock): static
-    {
-        $this->stock = $stock;
 
         return $this;
     }
@@ -156,6 +125,50 @@ class Product
     public function setImage(?string $image): static 
     {
         $this->image = $image; return $this; 
+    }
+
+    public function getProductSizes(): Collection
+    {
+        return $this->productSizes;
+    }
+
+    public function addProductSize(ProductSize $productSize): self
+    {
+        if (!$this->productSizes->contains($productSize)) {
+            $this->productSizes[] = $productSize;
+            $productSize->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductSize(ProductSize $productSize): self
+    {
+        if ($this->productSizes->contains($productSize)) {
+            $this->productSizes->removeElement($productSize);
+            if ($productSize->getProduct() === $this) {
+                $productSize->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getSelectedSize(): ?ProductSize
+    {
+        return $this->productSizes->first();
+    }
+
+        public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): self
+    {
+        $this->quantity = $quantity;
+
+        return $this;
     }
 
 }
