@@ -31,10 +31,11 @@
 						<li class="nav-item">
 							<a class="nav-link active" aria-current="page" href="/">Accueil</a>
 						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="/products">Boutique</a>
-						</li>
 						{% if app.user %}
+							<li class="nav-item">
+								<a class="nav-link" href="/products">Boutique</a>
+							</li>
+
 							<li class="nav-item">
 								<a class="nav-link" href="/cart">Panier</a>
 							</li>
@@ -59,22 +60,19 @@
 				</div>
 			</div>
 		</nav>
-	{% for type, messages in app.flashes %}
-		{% for message in messages %}
-			<div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
-				{{ message }}
-				<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
+		{% for type, messages in app.flashes %}
+			{% for message in messages %}
+				<div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+					{{ message }}
+					<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				</div>
+			{% endfor %}
 		{% endfor %}
-	{% endfor %}
 
 
-
-		<!-- Contenu principal -->
 		<main class="container py-5 my-4 flex-grow-1"> {% block body %}{% endblock %}
 			</main>
 
-			<!-- Footer -->
 			<footer class="bg-dark text-white py-3">
 				<div class="container">
 					<div class="text-center justify-content-center align-items-center">
@@ -109,14 +107,14 @@
 			{% endblock %}
 			<script>
 				document.addEventListener('DOMContentLoaded', function () {
-					const alerts = document.querySelectorAll('.alert');
-					alerts.forEach((alert) => {
-						setTimeout(() => {
-							alert.classList.remove('show');
-							alert.addEventListener('transitionend', () => alert.remove());
-						}, 5000);
-					});
-				});
+const alerts = document.querySelectorAll('.alert');
+alerts.forEach((alert) => {
+setTimeout(() => {
+alert.classList.remove('show');
+alert.addEventListener('transitionend', () => alert.remove());
+}, 5000);
+});
+});
 			</script>
 
 		</body>

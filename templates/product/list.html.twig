@@ -7,15 +7,16 @@
 	<h1>Liste des produits</h1>
 
 	<div>
-		{# <form method="get" action="{{ path('products') }}">
-									<label>Filtrer par prix :</label>
-									<select name="price_range">
-										<option value="10-29">10 à 29 €</option>
-										<option value="29-35">29 à 35 €</option>
-										<option value="35-50">35 à 50 €</option>
-									</select>
-									<button type="submit">Filtrer</button>
-								</form> #}
+		<form method="get" action="{{ path('products') }}" class="mb-4">
+			<label for="price_range">Filtrer par prix :</label>
+			<select name="price_range" id="price_range" class="form-select w-auto d-inline-block">
+				<option value="">Tous les prix</option>
+				<option value="10-29" {% if app.request.query.get('price_range') == '10-29' %} selected {% endif %}>10 à 29 €</option>
+				<option value="29-35" {% if app.request.query.get('price_range') == '29-35' %} selected {% endif %}>29 à 35 €</option>
+				<option value="35-50" {% if app.request.query.get('price_range') == '35-50' %} selected {% endif %}>35 à 50 €</option>
+			</select>
+			<button type="submit" class="btn btn-primary">Filtrer</button>
+		</form>
 
 		<div class="container mt-5">
 			<div class="row gap-3 d-flex justify-content-center align-items-center">
@@ -26,14 +27,15 @@
 							<h5 class="card-title">{{ product.name }}</h5>
 							<p class="card-text text-end">
 								{{ product.price }}
-								€</p>
+								€
+							</p>
 							{% if 'ROLE_ADMIN' in app.user.roles %}
 								<div class="d-flex justify-content-center align-items-center gap-5">
 									<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
 									<a class="btn btn-success text-nowrap" href="#">Modifier</a>
 								</div>
 							{% else %}
-								<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary ">Voir</a>
+								<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary">Voir</a>
 							{% endif %}
 						</div>
 					</div>

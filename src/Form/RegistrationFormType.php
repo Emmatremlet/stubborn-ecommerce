@@ -19,6 +19,7 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('name')
             ->add('email')
+            ->add('deliveryAddress')
             ->add('agreeTerms', CheckboxType::class, [
                                 'mapped' => false,
                                 'label' => 'Acceptez-vous les termes?',

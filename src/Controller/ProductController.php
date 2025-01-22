@@ -14,15 +14,23 @@ use Doctrine\ORM\EntityManagerInterface;
 class ProductController extends AbstractController
 {
     #[Route('/products', name: 'products')]
-    public function list(ProductRepository $productRepository, Request $request): Response
+    public function list(ProductRepository $productRepository, Request $request, EntityManagerInterface $entityManager): Response
     {
         $priceRange = $request->query->get('price_range');
         $products = $productRepository->findAll();
 
+        $productRepository = $entityManager->getRepository(Product::class);
+        $queryBuilder = $productRepository->createQueryBuilder('p');
+
         if ($priceRange) {
-            [$min, $max] = explode('-', $priceRange);
-            $products = $productRepository->findByPriceRange($min, $max);
+            [$minPrice, $maxPrice] = explode('-', $priceRange);
+            $queryBuilder->where('p.price >= :minPrice')
+                ->andWhere('p.price <= :maxPrice')
+                ->setParameter('minPrice', $minPrice)
+                ->setParameter('maxPrice', $maxPrice);
         }
+
+        $products = $queryBuilder->getQuery()->getResult();
 
         return $this->render('product/list.html.twig', [
             'products' => $products,

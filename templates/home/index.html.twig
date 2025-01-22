@@ -18,11 +18,14 @@
 							<p class="card-text text-end">
 								{{ product.price }}
 								€</p>
-							<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary d-flex justify-content-center align-items-center w-25 px-5 mx-auto">Voir</a>
+							{% if app.user %}
+								<a href="{{ path('product', {id: product.id}) }}" class="btn btn-primary d-flex justify-content-center align-items-center w-25 px-5 mx-auto">Voir</a>
+							{% endif %}
+							</div>
 						</div>
-					</div>
-				{% endfor %}
+					{% endfor %}
+				</div>
 			</div>
 		</div>
 	</div>
-</div>{% endblock %}
+{% endblock %}
