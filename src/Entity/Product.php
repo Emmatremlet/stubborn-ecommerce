@@ -31,6 +31,9 @@ class Product
     #[ORM\Column]
     private ?int $quantity = 0;
 
+    #[ORM\ManyToOne(targetEntity: ProductSize::class)]
+    private ?ProductSize $selectedSize = null;
+
     /**
      * @var Collection<int, Cart>
      */
@@ -156,10 +159,16 @@ class Product
 
     public function getSelectedSize(): ?ProductSize
     {
-        return $this->productSizes->first();
+        return $this->selectedSize;
     }
 
-        public function getQuantity(): ?int
+    public function setSelectedSize(?ProductSize $selectedSize): self
+    {
+        $this->selectedSize = $selectedSize;
+        return $this;
+    }
+
+    public function getQuantity(): ?int
     {
         return $this->quantity;
     }

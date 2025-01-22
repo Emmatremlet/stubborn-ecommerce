@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Entity\Cart;
 use App\Entity\Product;
+use App\Entity\ProductSize;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CartController extends AbstractController
 {
-    #[Route('/cart', name: 'cart_index')]   
+    #[Route('/cart', name: 'cart_index')]
     public function index(): Response
     {
         $cart = $this->getUser()->getCarts()->first();
@@ -26,14 +27,24 @@ class CartController extends AbstractController
 
         $selectedSizeIds = [];
         foreach ($products as $product) {
-            $selectedSizeIds[$product->getId()] = null;
+            $selectedSize = $product->getSelectedSize();
+
+            // Si aucune taille n'est sélectionnée, définir une valeur par défaut
+            $selectedSizeIds[$product->getId()] = $selectedSize ? $selectedSize->getId() : null;
+
+            // Vérifier et mettre à jour la taille sélectionnée
             foreach ($product->getProductSizes() as $productSize) {
-                if ($productSize->getSize() && $productSize->getSize()->getId() == $product->getSelectedSize()->getId()) {
-                    $selectedSizeIds[$product->getId()] = $product->getSelectedSize()->getId();
+                if (
+                    $productSize->getSize() &&
+                    $selectedSize &&
+                    $productSize->getSize()->getId() == $selectedSize->getId()
+                ) {
+                    $selectedSizeIds[$product->getId()] = $selectedSize->getId();
                     break;
                 }
             }
         }
+
         return $this->render('cart/index.html.twig', [
             'cart' => $cart,
             'products' => $products,
@@ -41,16 +52,14 @@ class CartController extends AbstractController
         ]);
     }
 
-
-    #[Route('/cart/add/{productId}', name: 'cart_add')]
-    public function addToCart(int $productId, EntityManagerInterface $entityManager): RedirectResponse
+    #[Route('/cart/add/{productId}', name: 'cart_add', methods: ['POST'])]
+    public function addToCart(int $productId, Request $request, EntityManagerInterface $entityManager): RedirectResponse
     {
         if (!$this->getUser()) {
             $this->addFlash('error', 'Vous devez être connecté pour ajouter des produits au panier.');
-
             return $this->redirectToRoute('login');
         }
-        
+
         $product = $entityManager->getRepository(Product::class)->find($productId);
 
         if (!$product) {
@@ -58,8 +67,15 @@ class CartController extends AbstractController
             return $this->redirectToRoute('products');
         }
 
-        $cart = $this->getUser()->getCarts()->first(); 
+        $sizeId = $request->request->get('size');
+        if (!$sizeId || !is_numeric($sizeId)) {
+            $this->addFlash('error', 'Veuillez sélectionner une taille valide.');
+            return $this->redirectToRoute('product', ['id' => $productId]);
+        }
 
+        $productSize = $entityManager->getRepository(ProductSize::class)->find($sizeId);
+
+        $cart = $this->getUser()->getCarts()->first();
         if (!$cart) {
             $cart = new Cart();
             $this->getUser()->addCart($cart);
@@ -76,19 +92,20 @@ class CartController extends AbstractController
 
         if ($existingProduct) {
             $existingProduct->setQuantity($existingProduct->getQuantity() + 1);
+            $existingProduct->setSelectedSize($productSize);
         } else {
             $cart->addProduct($product);
             $product->setQuantity(1);
+            $product->setSelectedSize($productSize);
         }
-                
+
         $entityManager->flush();
 
-        $this->addFlash('success', 'Produit ajouté au panier !');
-
+        $this->addFlash('success', 'Produit ajouté au panier avec la taille sélectionnée !');
         return $this->redirectToRoute('cart_index');
     }
 
-    #[Route('/cart/update', name: 'cart_update')]
+    #[Route('/cart/update', name: 'cart_update', methods: ['POST'])]
     public function updateCart(Request $request, EntityManagerInterface $entityManager): RedirectResponse
     {
         $cart = $this->getUser()->getCarts()->first();
@@ -98,41 +115,46 @@ class CartController extends AbstractController
             return $this->redirectToRoute('cart_index');
         }
 
-        $quantities = $request->request->get('quantities');
-        dump($quantities);
-        dump($sizes);   
-        $sizes = $request->request->get('sizes');
+        $data = $request->request->all();
+        $sizes = $data['sizes'] ?? [];
+        $quantities = $data['quantities'] ?? [];
+
+        if (!is_array($sizes) || !is_array($quantities)) {
+            throw new BadRequestHttpException('Invalid input data.');
+        }
 
         foreach ($cart->getProducts() as $product) {
             $productId = $product->getId();
 
-            if (isset($quantities[$productId])) {
+            if (isset($quantities[$productId]) && is_numeric($quantities[$productId])) {
                 $quantity = (int) $quantities[$productId];
-                
                 if ($quantity > 0) {
                     $product->setQuantity($quantity);
-
-                    if (isset($sizes[$productId])) {
-                        $sizeId = $sizes[$productId];
-                        $productSize = $entityManager->getRepository(ProductSize::class)->find($sizeId);
-                        if ($productSize) {
-                            $productSize->setStock($productSize->getStock() - $quantity);
-                        }
-                    }
                 }
+            }
+
+            if (isset($sizes[$productId]) && is_numeric($sizes[$productId])) {
+                $sizeId = (int) $sizes[$productId];
+                $productSize = $entityManager->getRepository(ProductSize::class)->find($sizeId);
+
+                if (!$productSize) {
+                    $this->addFlash('error', 'La taille sélectionnée est invalide pour le produit ' . $product->getName() . '.');
+                    continue;
+                }
+
+                $product->setSelectedSize($productSize);
             }
         }
 
         $entityManager->flush();
-        $this->addFlash('success', 'Le panier a été mis à jour.');
 
+        $this->addFlash('success', 'Le panier a été mis à jour.');
         return $this->redirectToRoute('cart_index');
     }
-
+    
     #[Route('/cart/remove/{productId}', name: 'cart_remove')]
     public function removeFromCart(int $productId, EntityManagerInterface $entityManager): RedirectResponse
     {
-        // Récupérer le panier de l'utilisateur
         $cart = $this->getUser()->getCarts()->first();
 
         if (!$cart) {
@@ -140,7 +162,6 @@ class CartController extends AbstractController
             return $this->redirectToRoute('cart_index');
         }
 
-        // Récupérer le produit à supprimer
         $product = $entityManager->getRepository(Product::class)->find($productId);
 
         if (!$product) {
@@ -148,7 +169,6 @@ class CartController extends AbstractController
             return $this->redirectToRoute('cart_index');
         }
 
-        // Rechercher l'association du produit dans le panier
         $cartItem = null;
         foreach ($cart->getProducts() as $item) {
             if ($item === $product) {
@@ -158,7 +178,6 @@ class CartController extends AbstractController
         }
 
         if ($cartItem) {
-            // Retirer le produit du panier (enlever la relation)
             $cart->removeProduct($product);
             $entityManager->flush();
 

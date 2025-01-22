@@ -24,6 +24,12 @@
 									{% endfor %}
 								</select>
 							</div>
+							{% if product.getSelectedSize %}
+								Taille sélectionnée :
+								{{ product.getSelectedSize().getName() }}
+							{% else %}
+								Aucune taille sélectionnée.
+							{% endif %}
 							<button class="btn btn-primary p-2 position-absolute bottom-50 end-0 m-3" type="submit">Ajouter au panier</button>
 						</form>
 					</div>

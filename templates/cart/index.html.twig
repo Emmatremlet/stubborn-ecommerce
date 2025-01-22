@@ -5,7 +5,11 @@
 
 {% block body %}
 	<div class="container mt-5">
+		<div>
+			<a href="{{ path('products') }}" class="btn btn-secondary btn-sm mr-3">⏎ Retour à la Boutique</a>
+		</div>
 		<h1 class="mb-4 text-center">Votre Panier</h1>
+
 		{% if products is not empty %}
 			<div class="table-responsive">
 				<form action="{{ path('cart_update') }}" method="post">
@@ -26,19 +30,31 @@
 								<tr>
 									<td>{{ product.name }}</td>
 									<td>
-										<img src="{{ asset('images/' ~ product.image) }}" alt="{{ product.name }}" class="img-thumbnail" style="width: 50px; height: 50px;">
+										<img src="{{ asset('images/' ~ product.image) }}" alt="{{ product.name }}" class="img-thumbnail " style="width: 50px; height: 50px;">
 									</td>
 									<td>{{ product.price }}
 										€</td>
 									<td>
-										<select name="sizes[{{ product.id }}]" class="form-control">
-											{% for size in product.productSizes %}
-												<option value="{{ size.id }}" {% if size.id == selected_size_id[product.id] %} selected {% endif %}>{{ size.size.name }}</option>
-											{% endfor %}
-										</select>
+										<div class="row gap-2 justify-content-center">
+											<select name="sizes[{{ product.id }}]" class="form-control  w-50 col-6" required>
+												{% for size in product.productSizes %}
+													<option value="{{ size.id }}" {% if size.id == selected_size_id[product.id] %} selected {% endif %}>
+														{{ size.size.name }}
+													</option>
+												{% endfor %}
+											</select>
+											<button type="submit" class="btn btn-warning btn-sm col-2">✓</button>
+										</div>
 									</td>
 									<td>
-										<input type="number" name="quantities[{{ product.id }}]" value="{{ product.quantity }}" min="1" class="form-control"/>
+										<div class="row gap-2 justify-content-center">
+											<select name="quantities[{{ product.id }}]" class="form-control w-50 col-6" required>
+												{% for i in 1..10 %}
+													<option value="{{ i }}" {% if i == product.quantity %} selected {% endif %}>{{ i }}</option>
+												{% endfor %}
+											</select>
+											<button type="submit" class="btn btn-warning btn-sm col-2">✓</button>
+										</div>
 									</td>
 									<td>{{ product.price * product.quantity }}
 										€</td>
@@ -49,19 +65,16 @@
 							{% endfor %}
 						</tbody>
 					</table>
-					<div class="d-flex justify-content-between align-items-center mt-4">
-						<h3 class="text-primary">Total :</h3>
-						<strong>{{ cart.getTotalPrice() }}
-							€</strong>
-					</div>
-					<div class="d-flex justify-content-end mt-3">
-						<button type="submit" class="btn btn-warning btn-lg">Mettre à jour le panier</button>
+					<div class="d-flex justify-content-end align-items-center mt-4 gap-4">
+						<h3 class="text-primary mb-0">Total :</h3>
+						<strong style="font-size:25px;">{{ cart.getTotalPrice() }}€</strong>
 					</div>
 				</form>
 			</div>
-			<div class="d-flex justify-content-end mt-3">
-				<a href="{{ path('products') }}" class="btn btn-secondary btn-lg mr-3">Retour à la Boutique</a>
-				{# <a href="{{ path('checkout') }}" class="btn btn-success btn-lg">Passer à la caisse</a> #}
+
+			<div
+				class="d-flex justify-content-end mt-5">
+				<a href="#" class="btn btn-success btn-lg">Passer à la caisse</a>
 			</div>
 		{% else %}
 			<div class="alert alert-warning mt-4 text-center">
