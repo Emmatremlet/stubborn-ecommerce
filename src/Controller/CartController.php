@@ -13,10 +13,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CartController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/cart', name: 'cart_index')]
     public function index(): Response
     {
-        $cart = $this->getUser()->getCarts()->first();
+        $cart = $this->getUser()->getOrCreateCart();
 
         if (!$cart) {
             $this->addFlash('danger', 'Vous n\'avez pas encore de panier.');
@@ -66,20 +73,23 @@ class CartController extends AbstractController
             $this->addFlash('danger', 'Produit non trouvé.');
             return $this->redirectToRoute('products');
         }
-
+        
         $sizeId = $request->request->get('size');
         if (!$sizeId || !is_numeric($sizeId)) {
-            $this->addFlash('danger', 'Veuillez sélectionner une taille valide.');
-            return $this->redirectToRoute('product', ['id' => $productId]);
+            throw new \InvalidArgumentException('Veuillez sélectionner une taille valide.');
         }
 
-        $productSize = $entityManager->getRepository(ProductSize::class)->find($sizeId);
-
-        $cart = $this->getUser()->getCarts()->first();
+        $productSize = $this->entityManager->getRepository(ProductSize::class)->find($sizeId);
+        if (!$productSize) {
+            throw new \InvalidArgumentException('La taille associée est invalide (controller).');
+        }
+        
+        $cart = $this->getUser()->getOrCreateCart();
         if (!$cart) {
             $cart = new Cart();
-            $this->getUser()->addCart($cart);
-            $entityManager->persist($cart);
+            $cart->setUser($this->getUser());
+            $this->entityManager->persist($cart);
+            $this->entityManager->flush();
         }
 
         $existingProduct = null;
@@ -108,11 +118,13 @@ class CartController extends AbstractController
     #[Route('/cart/update', name: 'cart_update', methods: ['POST'])]
     public function updateCart(Request $request, EntityManagerInterface $entityManager): RedirectResponse
     {
-        $cart = $this->getUser()->getCarts()->first();
+        $cart = $this->getUser()->getOrCreateCart();
 
         if (!$cart) {
-            $this->addFlash('danger', 'Votre panier est vide.');
-            return $this->redirectToRoute('cart_index');
+            $cart = new Cart();
+            $cart->setUser($this->getUser());
+            $this->entityManager->persist($cart);
+            $this->entityManager->flush();
         }
 
         $data = $request->request->all();
@@ -158,8 +170,10 @@ class CartController extends AbstractController
         $cart = $this->getUser()->getCarts()->first();
 
         if (!$cart) {
-            $this->addFlash('danger', 'Votre panier est vide.');
-            return $this->redirectToRoute('cart_index');
+            $cart = new Cart();
+            $cart->setUser($this->getUser());
+            $this->entityManager->persist($cart);
+            $this->entityManager->flush();
         }
 
         $product = $entityManager->getRepository(Product::class)->find($productId);

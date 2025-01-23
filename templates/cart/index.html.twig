@@ -9,9 +9,9 @@
 
 		{% if products is not empty %}
 			<form action="{{ path('cart_update') }}" method="post">
-				<div class="row g-4">
+				<div class="row g-4 ">
 					{% for product in products %}
-						<div class="col-12 d-flex justify-content-between align-items-center border-bottom pb-3">
+						<div class="cart-items col-12 d-flex justify-content-between align-items-center border-bottom pb-3">
 							<div class="col-2">
 								<img src="{{ asset('images/' ~ product.image) }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-width: 100px;">
 							</div>

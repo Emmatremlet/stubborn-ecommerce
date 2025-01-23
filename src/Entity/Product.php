@@ -161,12 +161,15 @@ class Product
     {
         return $this->selectedSize;
     }
-
+    
     public function setSelectedSize(?ProductSize $selectedSize): self
     {
+        if (!$selectedSize) {
+            throw new \InvalidArgumentException('Une taille doit être sélectionnée pour ce produit.');
+        }
         $this->selectedSize = $selectedSize;
         return $this;
-    }
+    }  
 
     public function getQuantity(): ?int
     {

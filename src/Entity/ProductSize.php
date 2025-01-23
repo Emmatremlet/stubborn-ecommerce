@@ -48,6 +48,9 @@ class ProductSize
 
     public function setSize(?Size $size): static
     {
+        if (!$size || !$size->getId()) {
+            throw new \InvalidArgumentException('La taille associée est invalide.');
+        }
         $this->size = $size;
 
         return $this;

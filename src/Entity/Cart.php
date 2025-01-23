@@ -18,6 +18,9 @@ class Cart
     #[ORM\ManyToOne(inversedBy: 'carts')]
     private ?User $user = null;
 
+    #[ORM\Column(type: 'float', options: ['default' => 0])]
+    private ?float $totalPrice = 0;
+
     /**
      * @var Collection<int, Product>
      */
@@ -27,6 +30,7 @@ class Cart
     public function __construct()
     {
         $this->products = new ArrayCollection();
+        $this->totalPrice = 0;
     }
 
     public function getId(): ?int
@@ -42,7 +46,6 @@ class Cart
     public function setUser(?User $user): static
     {
         $this->user = $user;
-
         return $this;
     }
 
@@ -56,24 +59,40 @@ class Cart
 
     public function addProduct(Product $product): static
     {
-        if (!$this->products->contains($product)) {
-            $this->products->add($product);
+        if (!$product) {
+            throw new \InvalidArgumentException('Le produit fourni est invalide.');
         }
+        $this->products->add($product);
+        $product->setQuantity($product->getQuantity() ?? 2);
 
+        $this->updateTotalPrice();
+        
         return $this;
     }
 
     public function removeProduct(Product $product): static
     {
         $this->products->removeElement($product);
+        $this->updateTotalPrice();
 
         return $this;
+    }
+
+    public function setTotalPrice(?float $totalPrice = null): static
+    {
+        $this->totalPrice = $totalPrice ?? $this->calculateTotalPrice();
+        return $this;
+    }
+
+    public function getTotalPrice(): ?float
+    {
+        return $this->totalPrice;
     }
 
     /**
      * Calcule le prix total des produits dans le panier.
      */
-    public function getTotalPrice(): float
+    private function calculateTotalPrice(): float
     {
         $total = 0;
 
@@ -82,5 +101,13 @@ class Cart
         }
 
         return $total;
+    }
+
+    /**
+     * Met à jour le prix total basé sur les produits dans le panier.
+     */
+    private function updateTotalPrice(): void
+    {
+        $this->totalPrice = $this->calculateTotalPrice();
     }
 }

@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ProductController extends AbstractController
 {
@@ -68,7 +69,7 @@ class ProductController extends AbstractController
 
             $this->addFlash('success', 'Produit ajouté avec succès !');
 
-            return $this->redirectToRoute('product_new');
+            return $this->redirectToRoute('admin');
         }
 
         return $this->render('administrator/dashboard.html.twig', [
@@ -100,11 +101,30 @@ class ProductController extends AbstractController
     #[Route('/product/delete/{id}', name: 'product_delete')]
     public function delete(Product $product, EntityManagerInterface $entityManager): RedirectResponse
     {
-        $entityManager->remove($product);
+        foreach ($product->getCarts() as $cart) {
+            $cart->removeProduct($product);
+        }
+        foreach ($product->getProductSizes() as $productSize) {
+            $product->removeProductSize($productSize);
+        }
+        if ($product->getSelectedSize() !== null) {
+            $product->setSelectedSize(null);
+        }
         $entityManager->flush();
 
+        $entityManager->remove($product);
+        try {
+            $entityManager->flush();
+        } catch (\Doctrine\ORM\ORMException $e) {
+            if (method_exists($e, 'getCycle')) {
+                $cycle = $e->getCycle();
+                dump($cycle);
+            }
+            throw $e;
+        }
+
         $this->addFlash('success', 'Produit supprimé avec succès !');
-        return $this->redirectToRoute('products');
+        return $this->redirectToRoute('admin');
     }
 }
 
