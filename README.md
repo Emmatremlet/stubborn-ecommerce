@@ -63,6 +63,7 @@
   - `stock`: Quantité disponible.
 - **Relations :**
   - `ManyToOne` avec `Product`.
+  - `ManyToOne` avec `Size`.
 
 #### 3.1.4 `Size`
 - **Attributs :**
@@ -81,42 +82,28 @@
 
 ---
 
-## 4. Contrôleurs
+## 4. Fixtures
 
-### 4.1 `CartController`
-- Gère les opérations sur le panier.
-- **Actions principales :**
-  - Ajouter un produit au panier.
-  - Supprimer un produit du panier.
-  - Valider la commande.
+### 4.1 `SizeFixtures`
+- Génère les tailles standards (XS, S, M, L, XL).
+- Utilise `addReference` pour associer chaque taille à une référence unique (`size_XS`, `size_S`, etc.).
 
-### 4.2 `HomeController`
-- Gère les pages publiques (accueil, connexion, inscription).
+### 4.2 `ProductFixtures`
+- Crée une liste de produits avec leurs prix et leur statut (mis en avant ou non).
+- Associe chaque produit à plusieurs tailles en utilisant les références générées par `SizeFixtures`.
 
-### 4.3 `ProductController`
-- Gère les produits.
-- **Actions principales :**
-  - Afficher tous les produits.
-  - Filtrer les produits par prix.
-  - Afficher les détails d'un produit.
+### 4.3 `ProductSizesFixtures`
+- Associe chaque produit à plusieurs tailles en utilisant les références créées dans `ProductFixtures` et `SizeFixtures`.
+- Définit des stocks aléatoires pour chaque taille d'un produit.
 
-### 4.4 `RegistrationController`
-- Gère les inscriptions des utilisateurs.
-- **Actions principales :**
-  - Afficher le formulaire d'inscription.
-  - Envoyer un email de confirmation.
+### 4.4 Chargement des fixtures
+- Les fixtures doivent être chargées dans l'ordre correct grâce à `DependentFixtureInterface`.
 
-### 4.5 `SecurityController`
-- Gère l'authentification et la sécurité des utilisateurs.
-- **Actions principales :**
-  - Afficher le formulaire de connexion.
-  - Déconnecter un utilisateur.
-
-### 4.6 `StripeController`
-- Gère les paiements via Stripe.
-- **Actions principales :**
-  - Initialiser le paiement.
-  - Traiter les réponses de Stripe.
+### 4.5 Commande pour recharger les fixtures
+- Purgez la base de données et rechargez les données de test :
+  ```bash
+  php bin/console doctrine:fixtures:load
+  ```
 
 ---
 
@@ -125,7 +112,6 @@
 1. **Cloner le dépôt GitHub :**
    ```bash
    git clone https://github.com/Emmatremlet/stubborn-ecommerce.git
-
    ```
 
 2. **Installer les dépendances :**
@@ -185,8 +171,6 @@
    STRIPE_PUBLIC_KEY=pk_test_...
    ```
 3. **Simuler un paiement avec le mode bac à sable.**
-    - 4242 4242 4242 4242 : Carte valide pour un paiement réussi.
-	- 4000 0000 0000 9995 : Carte invalide pour tester les erreurs de paiement.
 
 ---
 
@@ -211,6 +195,6 @@
 
 ## 10. Annexes
 
- - Diagramme UML des entités disponible dans le dossier : `diagramme_UML/Ecommerce_UML.png`.
- - Documentation format PDF : `documentation.pdf`.
+- Diagramme UML des entités disponible dans le dossier : `diagramme_UML/Ecommerce_UML.png`.
+
 
